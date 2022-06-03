@@ -14,7 +14,7 @@ database_url_base = f'mysql+pymysql://{env.user}:{env.password}@{env.host}/'
 def acquire_zillow(use_cache=True):
     print('Acquiring data from SQL database')
     query = '''
-        SELECT bedroomcnt, bathroomcnt, calculatedfinishedsquarefeet, propertylandusedesc, taxvaluedollarcnt, yearbuilt, fips, transactiondate 
+        SELECT bedroomcnt, bathroomcnt, calculatedfinishedsquarefeet, propertylandusedesc, taxamount, taxvaluedollarcnt, yearbuilt, fips, transactiondate 
         FROM zillow.propertylandusetype 
         RIGHT JOIN zillow.properties_2017 
         ON propertylandusetype.propertylandusetypeid = properties_2017.propertylandusetypeid
@@ -44,6 +44,7 @@ def prep_zillow(df):
     df.drop(df[df['bedroomcnt'] > 5.5].index, inplace = True)
     df.drop(df[df['bedroomcnt'] < 1.5].index, inplace = True)
     df.drop(df[df['bathroomcnt'] > 5.5].index, inplace = True)
+    df.drop(df[df['bathroomcnt'] < 1].index, inplace = True)
     df.drop(df[df['calculatedfinishedsquarefeet'] > 3860].index, inplace = True)
     df.drop(df[df['taxvaluedollarcnt'] > 639679].index, inplace = True)
 
@@ -53,7 +54,13 @@ def prep_zillow(df):
     df["bedroomcnt"] = df["bedroomcnt"].astype(int)
     df["taxvaluedollarcnt"] = df["taxvaluedollarcnt"].astype(int)
     df["calculatedfinishedsquarefeet"] = df["calculatedfinishedsquarefeet"].astype(int)
-    
+    df["taxamount"] = df["taxamount"].astype(int)
+
+    #map fips to location
+    df['location'] = df.fips.map({6037:'LA', 6059:'Orange', 6111:'Ventura'})
+
+    #drop columns
+    df.drop(columns=['fips'], inplace=True)
     return df
 
 def wrangle_zillow(): 
