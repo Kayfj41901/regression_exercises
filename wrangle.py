@@ -1,4 +1,4 @@
-
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler, QuantileTransformer
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -101,6 +101,7 @@ def scale_data(train,
     Takes in train, validate, and test data splits and returns their scaled counterparts.
     If return_scalar is True, the scaler object will be returned as well
     '''
+    
     train_scaled = train.copy()
     validate_scaled = validate.copy()
     test_scaled = test.copy()
